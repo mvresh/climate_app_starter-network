@@ -1,9 +1,9 @@
-import 'dart:convert';
-
-import 'package:clima/location_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+
+import 'loading_screen.dart';
+
+TextEditingController locationController = TextEditingController();
 
 class CityScreen extends StatefulWidget {
   @override
@@ -11,23 +11,6 @@ class CityScreen extends StatefulWidget {
 }
 
 class _CityScreenState extends State<CityScreen> {
-
-  void currentLocation() async{
-    Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-  }
-
-  Future<Map> fetchWeatherInfo() async{
-    Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    double latitude = position.latitude;
-    double longitude = position.longitude;
-    Map decodedResponse;
-    Response response = await get('https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=4f7b32dc58f4ac156caec77d106358f8');
-
-    if(response.statusCode == 200){
-      decodedResponse = jsonDecode(response.body);
-    }
-    return decodedResponse;
-  }
 
 
   @override
@@ -44,14 +27,35 @@ class _CityScreenState extends State<CityScreen> {
         child: SafeArea(
           child: Column(
             children: <Widget>[
-              Align(
-                alignment: Alignment.topLeft,
-                child: FlatButton(
-                  onPressed: () {},
-//                  child: Icon(
-//                    Icons.arrow_back_ios,
-//                    size: 50.0,
-//                  ),
+              SizedBox(height: 40,),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(flex:1,
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: FlatButton(
+                          onPressed: () {},
+                          child: Icon(
+                            Icons.location_city,
+                            size: 20.0,
+                        ),
+                      ),
+                  ),
+                    ),
+                    Expanded(flex:5,
+                      child: TextField(
+                        controller: locationController,
+                        decoration: InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                            BorderSide(color: Colors.white, width: 2.0),
+                        ),
+
+                      ),),)
+
+                  ],
                 ),
               ),
               Container(
@@ -60,11 +64,15 @@ class _CityScreenState extends State<CityScreen> {
               ),
               FlatButton(
                 onPressed: () async{
-                  Map dataFinal = await fetchWeatherInfo();
-                  Navigator.push(
+                  try{
+                    Navigator.push(
                       (context),
                       MaterialPageRoute(
-                          builder: (context) => LocationScreen(dataFinal)));
+                          builder: (context) => LoadingScreen()));}
+                          //LocationScreen(dataFinal)
+                  catch(error){
+                    Alert(context: context, title: "LOCATION", desc: "Permission is required!").show();
+                  }
                 },
                 child: Text(
                   'Get Weather',
