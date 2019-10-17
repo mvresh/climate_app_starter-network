@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'location.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:clima/weather_screen.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class LoadingScreen extends StatefulWidget {
 
@@ -23,9 +24,29 @@ class _LoadingScreenState extends State<LoadingScreen> {
   }
 
   void getCurrentLocation() async {
-    await myLocation.getLocation();
+    try {
+      await myLocation.getLocation();
+    } catch (e) {
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "LOCATION",
+        desc: "Location Permission required!",
+        buttons: [
+          DialogButton(
+            child: Text(
+              "Back",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () => Navigator.pushReplacement((context),MaterialPageRoute(
+              builder: (context) => CityScreen())),
+            width: 120,
+          )
+        ],
+      ).show();
+    }
 
-      fetchCityWeatherData();
+    fetchCityWeatherData();
   }
 
   void fetchCityWeatherData() async{
